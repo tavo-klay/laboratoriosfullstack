@@ -1,0 +1,161 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 0;
+}
+
+:root {
+    --primary-bg-color: #2b1717;
+    --form-bg-color: #ffffff;
+    --input-bg-color: #f8f9fa;
+    --border-color: #eb2525;
+    --placeholder-color: #6b7280;
+    --text-color: #374151;
+    
+    --border-radius-small: 1rem;
+    --border-radius-medium: 1.5rem;
+    --border-radius-large: 20px;
+    
+    --transition-duration: 0.3s;
+}
+
+body {
+    background-color: var(--primary-bg-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.formClass {
+    background-color: var(--form-bg-color);
+    border-radius: var(--border-radius-large);
+    padding: 2rem;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    margin-top: 80px; /* Espacio para el botón del menú */
+}
+
+h1 {
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--text-color);
+}
+
+#formNumeros {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+
+/*PARA CALC2 PARA Q SE MUESTREN UNICAMENTE LAS VARIABLES DE LA OPCION ELEGIDA */
+.input-field {
+    display: none;  /* Oculto por defecto */
+}
+
+.input-field.active {
+    display: block;  /* Visible cuando tiene clase 'active' */
+}
+#formNumeros input, select, #submitbtn {
+    text-align: center;
+    padding: 0.7rem;
+    margin: 1rem;
+    border-radius: var(--border-radius-small);
+    background-color: var(--input-bg-color);
+    border: solid 2px var(--border-color);
+    width: 100%;
+    max-width: 30rem;
+    font-size: 1rem;
+}
+
+
+#formNumeros ::placeholder {
+    color: var(--placeholder-color);
+}
+
+#submitbtn {
+    background-color: var(--border-color);
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+#submitbtn:hover {
+    background-color: var(--primary-bg-color);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Menu hamburguesa posicionado */
+.menu-button {
+    position: fixed !important;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    background-color: var(--input-bg-color) !important;
+    border: 2px solid var(--border-color) !important;
+    border-radius: var(--border-radius-small) !important;
+    transition: all var(--transition-duration) ease !important;
+}
+
+.menu-button:hover {
+    background-color: var(--form-bg-color) !important;
+    transform: scale(1.1);
+}
+
+.w3-sidebar {
+    background-color: var(--form-bg-color) !important;
+    transition: all var(--transition-duration) ease !important;
+    border-radius: 0 var(--border-radius-medium) var(--border-radius-medium) 0 !important;
+    left: 0 !important;        
+    top: 0 !important;           
+    width: 250px !important;      
+    height: 100vh !important;    
+}
+
+.w3-sidebar .w3-bar-item {
+    transition: all var(--transition-duration) ease !important;
+    border-radius: var(--border-radius-small) !important;
+    margin: 0.5rem !important;
+}
+
+.w3-sidebar .w3-bar-item:hover {
+    background-color: var(--primary-bg-color) !important;
+    color: white !important;
+    transform: translateX(10px);
+}
+
+.w3-overlay {
+    transition: opacity var(--transition-duration) ease !important;
+}
+
+
+
+
+
+
+/* Responsive */
+@media (max-width: 768px) {
+    .formClass {
+        margin: 1rem;
+        padding: 1.5rem;
+        margin-top: 100px;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    #formNumeros input, select, #submitbtn {
+        width: 100%;
+        max-width: none;
+    }
+}
