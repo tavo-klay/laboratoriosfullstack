@@ -53,57 +53,58 @@
 
         <button type="submit" id="submitbtn">Convertir</button>
     </form>
-
 <?php 
 //--------------------------------
-// FUNCIÓN CALCULOS DE BASES NUMERICAS
+// FUNCIÓN OPTIMIZADA DE CONVERSIÓN DE BASES NUMÉRICAS
 //--------------------------------
-  
+
 function convBase($numberInput, $fromBaseInput, $toBaseInput)
 {
+    // Validación temprana
     if ($fromBaseInput == $toBaseInput) return $numberInput;
-
-    $fromBaseChars = substr('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 0, $fromBaseInput);
-    $toBaseChars = substr('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 0, $toBaseInput);
-
-    $fromBase = str_split($fromBaseChars, 1);
-    $toBase = str_split($toBaseChars, 1);
+    
+    // Una sola definición de caracteres válidos
+    $baseChars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $fromBaseChars = substr($baseChars, 0, $fromBaseInput);
+    $toBaseChars = substr($baseChars, 0, $toBaseInput);
+    
     $number = str_split(strtoupper($numberInput), 1);
-    $fromLen = $fromBaseInput;
-    $toLen = $toBaseInput;  
-    $numberLen = strlen($numberInput);
-    $retval = '';
-
+    
+    // Validación de dígitos
     foreach ($number as $digit) {
-        if (!in_array($digit, $fromBase)) {
+        if (strpos($fromBaseChars, $digit) === false) {
             throw new Exception("Dígito '$digit' no válido para base $fromBaseInput");
         }
     }
-
+    
+    // Conversión directa a base 10 (eliminando variables redundantes)
+    $base10 = 0;
+    $numberLen = count($number);
+    
+    for ($i = 0; $i < $numberLen; $i++) {
+        $digitValue = strpos($fromBaseChars, $number[$i]);
+        $base10 = bcadd($base10, bcmul($digitValue, bcpow($fromBaseInput, $numberLen - $i - 1)));
+    }
+    
+    // Si la base destino es 10, retornar directamente
     if ($toBaseInput == 10) {
-        $retval = 0;
-        for ($i = 1; $i <= $numberLen; $i++) {
-            $digitValue = array_search($number[$i-1], $fromBase);
-            $retval = bcadd($retval, bcmul($digitValue, bcpow($fromLen, $numberLen - $i)));
-        }
-        return $retval;
+        return $base10;
     }
-
-    $base10 = ($fromBaseInput != 10) ? convBase($numberInput, $fromBaseInput, 10) : $numberInput;
-
+    
+    // Conversión de base 10 a base destino
     if ($base10 < $toBaseInput) {
-        return $toBase[$base10];
+        return $toBaseChars[$base10];
     }
-
+    
+    $result = '';
     while ($base10 != '0') {
-        $remainder = bcmod($base10, $toLen);
-        $retval = $toBase[$remainder] . $retval;
-        $base10 = bcdiv($base10, $toLen, 0);
+        $remainder = bcmod($base10, $toBaseInput);
+        $result = $toBaseChars[$remainder] . $result;
+        $base10 = bcdiv($base10, $toBaseInput, 0);
     }
-
-    return $retval;
+    
+    return $result;
 }
-
 // Procesar el formulario
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     try {
