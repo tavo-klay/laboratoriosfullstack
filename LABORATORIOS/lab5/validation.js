@@ -71,11 +71,6 @@ function guardar() {
         return;
     }
 
-    if (sitio && !validarURL(sitio)) {
-        alert('La URL debe contener un path (ej: https://example.com/ruta)');
-        return;
-    }
-
     estudiante.nombre = nombre;
     estudiante.cedula = cedula;
     estudiante.localidad = localidad;
