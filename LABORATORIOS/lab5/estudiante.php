@@ -55,7 +55,7 @@ function colorEstado($estado) {
 // Procesar datos
 $estudiante = null;
 $color = '';
-$hayDatos = false;
+$hayDatos = false;  
 
 if ($_POST) {
     $notas = [];

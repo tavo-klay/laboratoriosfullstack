@@ -65,119 +65,122 @@
     </form>
 
 <?php
-
-//================================
-// CLASE CONVERSOR DE BASES
-//================================
-class ConversorBases 
-{
-    private $basesPermitidas = [2, 8, 10, 16];
+function convertirBase($numero, $baseOrigen, $baseDestino) {
+    $basesPermitidas = [2, 8, 10, 16];
     
-    public function convertir($numero, $baseOrigen, $baseDestino) 
-    {
-        if (!in_array($baseOrigen, $this->basesPermitidas) || !in_array($baseDestino, $this->basesPermitidas)) {
-            throw new Exception("Solo se permiten bases: 2, 8, 10, 16");
-        }
-        
-        if ($baseOrigen == $baseDestino) return $numero;
+    if (!in_array($baseOrigen, $basesPermitidas) || !in_array($baseDestino, $basesPermitidas)) {
+        return "Error: Solo se permiten bases: 2, 8, 10, 16";
+    }
+    
+    if ($baseOrigen == $baseDestino) return $numero;
 
-        // Validar dígitos del número
-        $caracteresValidos = substr('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 0, $baseOrigen);
-        $digitos = str_split(strtoupper($numero));
-        
-        foreach ($digitos as $digito) {
-            if (strpos($caracteresValidos, $digito) === false) {
-                throw new Exception("Dígito '$digito' no válido para base $baseOrigen");
+    // Validar dígitos del número
+    $caracteresValidos = substr('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 0, $baseOrigen);
+    $digitos = str_split(strtoupper($numero));
+    
+    foreach ($digitos as $digito) {
+        if (strpos($caracteresValidos, $digito) === false) {
+            return "Error: Dígito '$digito' no válido para base $baseOrigen";
+        }
+    }
+
+    // Convertir a decimal primero
+    $decimal = base_convert($numero, $baseOrigen, 10);
+    
+    // Convertir de decimal a la base destino
+    return base_convert($decimal, 10, $baseDestino);
+}
+
+function calcularOperacion($numero1, $base1, $numero2, $base2, $operacion) {
+    // Convertir ambos números a decimal
+    $n1 = convertirBase($numero1, $base1, 10);
+    $n2 = convertirBase($numero2, $base2, 10);
+    
+    // Verificar si hubo errores en la conversión
+    if (strpos($n1, 'Error:') === 0) return $n1;
+    if (strpos($n2, 'Error:') === 0) return $n2;
+    
+    switch ($operacion) {
+        case 'suma':
+            return bcadd($n1, $n2);
+        case 'resta':
+            return bcsub($n1, $n2);
+        case 'multiplicacion':
+            return bcmul($n1, $n2);
+        case 'division':
+            if ($n2 == '0') {
+                return "Error: División por cero no permitida";
             }
-        }
-
-        // Convertir a decimal primero
-        $decimal = base_convert($numero, $baseOrigen, 10);
-        
-        // Convertir de decimal a la base destino
-        return base_convert($decimal, 10, $baseDestino);
+            return bcdiv($n1, $n2, 10);
+        default:
+            return "Error: Operación inválida";
     }
 }
 
-//================================  
-// CLASE CALCULADORA
-//================================
-class Calculadora 
-{
-    private $conversor;
+function mostrarResultado($numero1, $base1, $numero2, $base2, $operacion, $resultado) {
+    $simbolos = [
+        'suma' => '+',
+        'resta' => '-',
+        'multiplicacion' => '×',
+        'division' => '÷'
+    ];
     
-    public function __construct() 
-    {
-        $this->conversor = new ConversorBases();
-    }
-    
-    public function calcular($numero1, $base1, $numero2, $base2, $operacion) 
-    {
-        // Convertir ambos números a decimal
-        $n1 = $this->conversor->convertir($numero1, $base1, 10);
-        $n2 = $this->conversor->convertir($numero2, $base2, 10);
-        
-        switch ($operacion) {
-            case 'suma':
-                return bcadd($n1, $n2);
-            case 'resta':
-                return bcsub($n1, $n2);
-            case 'multiplicacion':
-                return bcmul($n1, $n2);
-            case 'division':
-                if ($n2 == '0') {
-                    throw new Exception("División por cero no permitida");
-                }
-                return bcdiv($n1, $n2, 10);
-            default:
-                throw new Exception("Operación inválida");
-        }
-    }
-    
-    public function mostrarResultado($numero1, $base1, $numero2, $base2, $operacion, $resultado) 
-    {
-        $simbolos = [
-            'suma' => '+',
-            'resta' => '-',
-            'multiplicacion' => '×',
-            'division' => '÷'
-        ];
-        
-        echo '<div>';
-        echo '<strong>Resultado del cálculo:</strong><br>';
-        echo "Operación: $numero1 (base $base1) {$simbolos[$operacion]} $numero2 (base $base2)<br><br>";
-        echo '<strong>Resultado en todas las bases:</strong><br>';
-        echo "• Binario (base 2): " . $this->conversor->convertir($resultado, 10, 2) . "<br>";
-        echo "• Octal (base 8): " . $this->conversor->convertir($resultado, 10, 8) . "<br>";
-        echo "• Decimal (base 10): " . $resultado . "<br>";
-        echo "• Hexadecimal (base 16): " . $this->conversor->convertir($resultado, 10, 16) . "<br>";
-        echo '</div>';
-    }
+    echo '<div>';
+    echo '<strong>Resultado del cálculo:</strong><br>';
+    echo "Operación: $numero1 (base $base1) {$simbolos[$operacion]} $numero2 (base $base2)<br><br>";
+    echo '<strong>Resultado en todas las bases:</strong><br>';
+    echo "• Binario (base 2): " . convertirBase($resultado, 10, 2) . "<br>";
+    echo "• Octal (base 8): " . convertirBase($resultado, 10, 8) . "<br>";
+    echo "• Decimal (base 10): " . $resultado . "<br>";
+    echo "• Hexadecimal (base 16): " . convertirBase($resultado, 10, 16) . "<br>";
+    echo '</div>';
 }
 
-//================================
-// PROCESAMIENTO DEL FORMULARIO
-//================================
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    try {
-        $numero1 = trim($_POST["numero1"] ?? '');
-        $base1 = (int)($_POST["base1"] ?? 0);
-        $numero2 = trim($_POST["numero2"] ?? '');
-        $base2 = (int)($_POST["base2"] ?? 0);
-        $operacion = trim($_POST["operacion"] ?? '');
-        
-        $calculadora = new Calculadora();
-        $resultado = $calculadora->calcular($numero1, $base1, $numero2, $base2, $operacion);
-        $calculadora->mostrarResultado($numero1, $base1, $numero2, $base2, $operacion, $resultado);
-        
-    } catch (Exception $e) {
+    $numero1 = trim($_POST["numero1"] ?? '');
+    $base1 = (int)($_POST["base1"] ?? 0);
+    $numero2 = trim($_POST["numero2"] ?? '');
+    $base2 = (int)($_POST["base2"] ?? 0);
+    $operacion = trim($_POST["operacion"] ?? '');
+    
+    if (empty($numero1) || $base1 == 0 || empty($numero2) || $base2 == 0 || empty($operacion)) {
         echo '<div>';
-        echo '<strong>Error:</strong> ' . $e->getMessage();
+        echo '<strong>Error:</strong> Por favor complete todos los campos';
         echo '</div>';
+    } else {
+        $resultado = calcularOperacion($numero1, $base1, $numero2, $base2, $operacion);
+        
+        if (strpos($resultado, 'Error:') === 0) {
+            echo '<div>';
+            echo '<strong>' . $resultado . '</strong>';
+            echo '</div>';
+        } else {
+            mostrarResultado($numero1, $base1, $numero2, $base2, $operacion, $resultado);
+        }
     }
 }
 ?>
 
+<script>
+function w3_open() {
+    document.getElementById("mySidebar").style.display = "block";
+    document.getElementById("myOverlay").style.display = "block";
+    document.querySelector(".menu-button").style.display = "none";
+}
 
+function w3_close() {
+    document.getElementById("mySidebar").style.display = "none";
+    document.getElementById("myOverlay").style.display = "none";
+    document.querySelector(".menu-button").style.display = "block";
+}
+</script>
+
+<footer style="text-align:center; margin-top:30px;">
+    <a href="../lab1/calc1.php" style="display:inline-block; margin:5px; padding:8px 18px; background:#eee; color:#222; border:1px solid #bbb; border-radius:6px; text-decoration:none;">Lab 1 </a>
+    <a href="../lab2/calc1.php" style="display:inline-block; margin:5px; padding:8px 18px; background:#eee; color:#222; border:1px solid #bbb; border-radius:6px; text-decoration:none;">Lab 2 </a>
+    <a href="../lab3/calc1.php" style="display:inline-block; margin:5px; padding:8px 18px; background:#eee; color:#222; border:1px solid #bbb; border-radius:6px; text-decoration:none;">Lab 3 </a>
+    <a href="../lab4/Comprobador.php" style="display:inline-block; margin:5px; padding:8px 18px; background:#eee; color:#222; border:1px solid #bbb; border-radius:6px; text-decoration:none;">Lab 4 </a>
+    <a href="../lab5/index.php" style="display:inline-block; margin:5px; padding:8px 18px; background:#eee; color:#222; border:1px solid #bbb; border-radius:6px; text-decoration:none;">Lab 5 </a>
+</footer>
 </body>
 </html>

@@ -54,10 +54,6 @@
         <button type="submit" id="submitbtn">Convertir</button>
     </form>
 <?php 
-//--------------------------------
-// FUNCIÓN OPTIMIZADA DE CONVERSIÓN DE BASES NUMÉRICAS
-//--------------------------------
-
 function convBase($numberInput, $fromBaseInput, $toBaseInput)
 {
     // Validación temprana
@@ -73,7 +69,7 @@ function convBase($numberInput, $fromBaseInput, $toBaseInput)
     // Validación de dígitos
     foreach ($number as $digit) {
         if (strpos($fromBaseChars, $digit) === false) {
-            throw new Exception("Dígito '$digit' no válido para base $fromBaseInput");
+            return "Error: Dígito '$digit' no válido para base $fromBaseInput";
         }
     }
     
@@ -105,25 +101,31 @@ function convBase($numberInput, $fromBaseInput, $toBaseInput)
     
     return $result;
 }
+
 // Procesar el formulario
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    try {
-        $numberInput = trim($_POST["numberInput"] ?? '');
-        $fromBaseInput = (int)($_POST["fromBaseInput"] ?? 0);
-        $toBaseInput = (int)($_POST["toBaseInput"] ?? 0);
+    $numberInput = trim($_POST["numberInput"] ?? '');
+    $fromBaseInput = (int)($_POST["fromBaseInput"] ?? 0);
+    $toBaseInput = (int)($_POST["toBaseInput"] ?? 0);
 
+    if (empty($numberInput) || $fromBaseInput == 0 || $toBaseInput == 0) {
+        echo '<div>';
+        echo '<strong>Error:</strong> Por favor complete todos los campos';
+        echo '</div>';
+    } else {
         $resultado = convBase($numberInput, $fromBaseInput, $toBaseInput);
 
-        echo '<div>';
-        echo '<strong>Resultado de la conversión:</strong><br>';
-        echo "Número: $numberInput (base $fromBaseInput)<br>";
-        echo "Convertido a: $resultado (base $toBaseInput)";
-        echo '</div>';
-
-    } catch (Exception $e) {
-        echo '<div>';
-        echo '<strong>Error:</strong> ' . $e->getMessage();
-        echo '</div>';
+        if (strpos($resultado, 'Error:') === 0) {
+            echo '<div>';
+            echo '<strong>' . $resultado . '</strong>';
+            echo '</div>';
+        } else {
+            echo '<div>';
+            echo '<strong>Resultado de la conversión:</strong><br>';
+            echo "Número: $numberInput (base $fromBaseInput)<br>";
+            echo "Convertido a: $resultado (base $toBaseInput)";
+            echo '</div>';
+        }
     }
 }
 ?>
@@ -141,15 +143,14 @@ function w3_close() {
     document.getElementById("myOverlay").style.display = "none";
     document.querySelector(".menu-button").style.display = "block";
 }
-</SCRIPT>
+</script>
 
 <footer style="text-align:center; margin-top:30px;">
     <a href="../lab1/calc1.php" style="display:inline-block; margin:5px; padding:8px 18px; background:#eee; color:#222; border:1px solid #bbb; border-radius:6px; text-decoration:none;">Lab 1 </a>
     <a href="../lab2/calc1.php" style="display:inline-block; margin:5px; padding:8px 18px; background:#eee; color:#222; border:1px solid #bbb; border-radius:6px; text-decoration:none;">Lab 2 </a>
-    <a href="calc1.php" style="display:inline-block; margin:5px; padding:8px 18px; background:#eee; color:#222; border:1px solid #bbb; border-radius:6px; text-decoration:none;">Lab 3 </a>
+    <a href="../lab3/calc1.php" style="display:inline-block; margin:5px; padding:8px 18px; background:#eee; color:#222; border:1px solid #bbb; border-radius:6px; text-decoration:none;">Lab 3 </a>
     <a href="../lab4/Comprobador.php" style="display:inline-block; margin:5px; padding:8px 18px; background:#eee; color:#222; border:1px solid #bbb; border-radius:6px; text-decoration:none;">Lab 4 </a>
     <a href="../lab5/index.php" style="display:inline-block; margin:5px; padding:8px 18px; background:#eee; color:#222; border:1px solid #bbb; border-radius:6px; text-decoration:none;">Lab 5 </a>
 </footer>
-</script>
 </body>
 </html>

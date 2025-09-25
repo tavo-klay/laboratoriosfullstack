@@ -37,32 +37,29 @@
     </form>
 
 <?php 
-class CedulaUruguaya {
-    private $multiplicadores = [2, 9, 8, 7, 6, 3, 4];
+function esNumeroRepetido($numero) {
+    return strlen($numero) === strspn($numero, $numero[0]);
+}
 
-    private function esNumeroRepetido($numero) {
-        return strlen($numero) === strspn($numero, $numero[0]);
+function calcularDigitoVerificador($primerosSiete) {
+    if (!preg_match('/^[0-9]{7}$/', $primerosSiete)) {
+        return false;
     }
 
-    public function calcularDigitoVerificador($primerosSiete) {
-        if (!preg_match('/^[0-9]{7}$/', $primerosSiete)) {
-            throw new Exception("Los primeros 7 digitos deben ser numeros validos");
-        }
-
-        if ($this->esNumeroRepetido($primerosSiete)) {
-            throw new Exception("Numero invalido: no se permiten todos los digitos iguales");
-        }
-
-        $digitos = str_split($primerosSiete);
-        $suma = 0;
-
-        for ($i = 0; $i < 7; $i++) {
-            $suma += intval($digitos[$i]) * $this->multiplicadores[$i];
-        }
-
-        $resto = $suma % 10;
-        return $resto === 0 ? 0 : 10 - $resto;
+    if (esNumeroRepetido($primerosSiete)) {
+        return false;
     }
+
+    $multiplicadores = [2, 9, 8, 7, 6, 3, 4];
+    $digitos = str_split($primerosSiete);
+    $suma = 0;
+
+    for ($i = 0; $i < 7; $i++) {
+        $suma += intval($digitos[$i]) * $multiplicadores[$i];
+    }
+
+    $resto = $suma % 10;
+    return $resto === 0 ? 0 : 10 - $resto;
 }
 
 function formatearCedula($cedula) {
@@ -70,21 +67,18 @@ function formatearCedula($cedula) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    try {
-        $cedulaUY = new CedulaUruguaya();
-        $primerosSiete = trim($_POST['primerosSiete']);
-        
-        if (empty($primerosSiete)) {
-            throw new Exception("Por favor, ingresa los primeros 7 digitos");
-        }
-
-        $digitoVerificador = $cedulaUY->calcularDigitoVerificador($primerosSiete);
+    $primerosSiete = trim($_POST['primerosSiete']);
+    
+    if (empty($primerosSiete)) {
+        echo '<div class="result error">Por favor, ingresa los primeros 7 digitos</div>';
+    } elseif (!preg_match('/^[0-9]{7}$/', $primerosSiete)) {
+        echo '<div class="result error">Los primeros 7 digitos deben ser numeros validos</div>';
+    } elseif (esNumeroRepetido($primerosSiete)) {
+        echo '<div class="result error">Numero invalido: no se permiten todos los digitos iguales</div>';
+    } else {
+        $digitoVerificador = calcularDigitoVerificador($primerosSiete);
         $cedulaCompleta = $primerosSiete . $digitoVerificador;
-        
         echo '<div class="result info">Digito Calculado<br><small>Cedula completa: ' . formatearCedula($cedulaCompleta) . ' | Digito verificador: <strong>' . $digitoVerificador . '</strong></small></div>';
-        
-    } catch (Exception $e) {
-        echo '<div class="result error">Error: ' . $e->getMessage() . '</div>';
     }
 }
 ?>
@@ -103,6 +97,14 @@ function w3_close() {
     document.querySelector(".menu-button").style.display = "block";
 }
 </script>
+
+<footer style="text-align:center; margin-top:30px;">
+    <a href="../lab1/calc1.php" style="display:inline-block; margin:5px; padding:8px 18px; background:#eee; color:#222; border:1px solid #bbb; border-radius:6px; text-decoration:none;">Lab 1 </a>
+    <a href="../lab2/calc1.php" style="display:inline-block; margin:5px; padding:8px 18px; background:#eee; color:#222; border:1px solid #bbb; border-radius:6px; text-decoration:none;">Lab 2 </a>
+    <a href="../lab3/calc1.php" style="display:inline-block; margin:5px; padding:8px 18px; background:#eee; color:#222; border:1px solid #bbb; border-radius:6px; text-decoration:none;">Lab 3 </a>
+    <a href="../lab4/Comprobador.php" style="display:inline-block; margin:5px; padding:8px 18px; background:#eee; color:#222; border:1px solid #bbb; border-radius:6px; text-decoration:none;">Lab 4 </a>
+    <a href="../lab5/index.php" style="display:inline-block; margin:5px; padding:8px 18px; background:#eee; color:#222; border:1px solid #bbb; border-radius:6px; text-decoration:none;">Lab 5 </a>
+</footer>
 
 </body>
 </html>

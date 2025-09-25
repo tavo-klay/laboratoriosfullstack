@@ -37,52 +37,33 @@
     </form>
 
 <?php 
-class CedulaUruguaya {
-    private $multiplicadores = [2, 9, 8, 7, 6, 3, 4];
+function esNumeroRepetido($numero) {
+    return strlen($numero) === strspn($numero, $numero[0]);
+}
 
-    private function esNumeroRepetido($numero) {
-        return strlen($numero) === strspn($numero, $numero[0]);
+function calcularDigitoVerificador($primerosSiete) {
+    $multiplicadores = [2, 9, 8, 7, 6, 3, 4];
+    $digitos = str_split($primerosSiete);
+    $suma = 0;
+
+    for ($i = 0; $i < 7; $i++) {
+        $suma += intval($digitos[$i]) * $multiplicadores[$i];
     }
 
-    public function calcularDigitoVerificador($primerosSiete) {
-        if (!preg_match('/^[0-9]{7}$/', $primerosSiete)) {
-            throw new Exception("Los primeros 7 digitos deben ser numeros validos");
-        }
+    $resto = $suma % 10;
+    return $resto === 0 ? 0 : 10 - $resto;
+}
 
-        if ($this->esNumeroRepetido($primerosSiete)) {
-            throw new Exception("Numero invalido: no se permiten todos los digitos iguales");
-        }
+function verificarCedula($cedulaCompleta) {
+    $primerosSiete = substr($cedulaCompleta, 0, 7);
+    $digitoIngresado = intval(substr($cedulaCompleta, 7, 1));
+    $digitoCalculado = calcularDigitoVerificador($primerosSiete);
 
-        $digitos = str_split($primerosSiete);
-        $suma = 0;
-
-        for ($i = 0; $i < 7; $i++) {
-            $suma += intval($digitos[$i]) * $this->multiplicadores[$i];
-        }
-
-        $resto = $suma % 10;
-        return $resto === 0 ? 0 : 10 - $resto;
-    }
-
-    public function verificarCedula($cedulaCompleta) {
-        if (!preg_match('/^[0-9]{8}$/', $cedulaCompleta)) {
-            throw new Exception("La cedula debe tener exactamente 8 digitos");
-        }
-
-        if ($this->esNumeroRepetido($cedulaCompleta)) {
-            throw new Exception("Cedula invalida: no se permiten todos los digitos iguales");
-        }
-
-        $primerosSiete = substr($cedulaCompleta, 0, 7);
-        $digitoIngresado = intval(substr($cedulaCompleta, 7, 1));
-        $digitoCalculado = $this->calcularDigitoVerificador($primerosSiete);
-
-        return [
-            'esValida' => $digitoIngresado === $digitoCalculado,
-            'digitoIngresado' => $digitoIngresado,
-            'digitoCalculado' => $digitoCalculado
-        ];
-    }
+    return [
+        'esValida' => $digitoIngresado === $digitoCalculado,
+        'digitoIngresado' => $digitoIngresado,
+        'digitoCalculado' => $digitoCalculado
+    ];
 }
 
 function formatearCedula($cedula) {
@@ -90,24 +71,22 @@ function formatearCedula($cedula) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    try {
-        $cedulaUY = new CedulaUruguaya();
-        $cedulaCompleta = trim($_POST['cedulaCompleta']);
-        
-        if (empty($cedulaCompleta)) {
-            throw new Exception("Por favor, ingresa una cedula completa");
-        }
-
-        $verificacion = $cedulaUY->verificarCedula($cedulaCompleta);
+    $cedulaCompleta = trim($_POST['cedulaCompleta']);
+    
+    if (empty($cedulaCompleta)) {
+        echo '<div class="result error">Error: Por favor, ingresa una cedula completa</div>';
+    } elseif (!preg_match('/^[0-9]{8}$/', $cedulaCompleta)) {
+        echo '<div class="result error">Error: La cedula debe tener exactamente 8 digitos</div>';
+    } elseif (esNumeroRepetido($cedulaCompleta)) {
+        echo '<div class="result error">Error: Cedula invalida: no se permiten todos los digitos iguales</div>';
+    } else {
+        $verificacion = verificarCedula($cedulaCompleta);
         
         if ($verificacion['esValida']) {
             echo '<div class="result success">Cedula VALIDA<br><small>La cedula ' . formatearCedula($cedulaCompleta) . ' es correcta</small></div>';
         } else {
             echo '<div class="result error">Cedula INVALIDA<br><small>Digito ingresado: ' . $verificacion['digitoIngresado'] . ' | Digito correcto: ' . $verificacion['digitoCalculado'] . '</small></div>';
         }
-        
-    } catch (Exception $e) {
-        echo '<div class="result error">Error: ' . $e->getMessage() . '</div>';
     }
 }
 ?>
@@ -125,7 +104,7 @@ function w3_close() {
     document.getElementById("myOverlay").style.display = "none";
     document.querySelector(".menu-button").style.display = "block";
 }
-</script><br>
+</script>
 
 <footer style="text-align:center; margin-top:30px;">
     <a href="../lab1/calc1.php" style="display:inline-block; margin:5px; padding:8px 18px; background:#eee; color:#222; border:1px solid #bbb; border-radius:6px; text-decoration:none;">Lab 1 </a>
