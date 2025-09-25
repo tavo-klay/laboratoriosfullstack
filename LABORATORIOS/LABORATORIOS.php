@@ -16,7 +16,6 @@
     <a class="lab-btn" href="lab3/calc1.php">Lab 3</a>
     <a class="lab-btn" href="lab4/Comprobador.php">Lab 4</a>
     <a class="lab-btn" href="lab5/index.php">Lab 5</a>
-    h1 
 </div>
 </body>
 </html>

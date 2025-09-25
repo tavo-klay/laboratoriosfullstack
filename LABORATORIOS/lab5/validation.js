@@ -46,16 +46,6 @@ function validarEmail(email) {
     return regex.test(email);
 }
 
-// Validar URL con path requerido
-function validarURL(url) {
-    try {
-        var u = new URL(url);
-        return u.pathname !== '/';
-    } catch (e) {
-        return false;
-    }
-}
-
 // Guardar datos
 function guardar() {
     var nombre = document.getElementById('nombre').value;
