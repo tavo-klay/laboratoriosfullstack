@@ -9,12 +9,6 @@ document.addEventListener("DOMContentLoaded", function () {
     
     const valor = operadorSelect.value;
 
-    if (valor === "" || isNaN(valor)) {
-      alert("Por favor selecciona una tabla valida.");
-      e.preventDefault(); // Evita el envio del formulario
-      return;
-    }
-
     // VALIDAR QUE EL VALOR ESTE ENTRE 1 Y 10
     const numero = parseInt(valor);
 
